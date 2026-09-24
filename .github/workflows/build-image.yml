@@ -3,8 +3,15 @@ name: Build Milk-V Duo S image
 on:
   workflow_dispatch:
   push:
+    branches: [main]
     tags:
       - 'image-v*'
+    paths:
+      - 'build.sh'
+      - 'config/**'
+      - 'scripts/**'
+      - 'userpatches/**'
+      - '.github/workflows/build-image.yml'
 
 permissions:
   contents: write
@@ -20,6 +27,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Validate build scripts
+        shell: bash
+        run: |
+          bash -n build.sh
+          bash -n scripts/build-cockpit-ups-wol-deb.sh
+          bash -n userpatches/customize-image.sh
 
       - name: Load pinned toolchain versions
         shell: bash
