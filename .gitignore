@@ -1,0 +1,6 @@
+.work/
+output/
+userpatches/overlay/packages/*.deb
+*.img
+*.img.xz
+*.sha256
