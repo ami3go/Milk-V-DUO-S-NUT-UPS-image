@@ -21,10 +21,9 @@ The image is based on a pinned Armbian build revision using:
 
 The Armbian board definition identifies the target as the Milk-V Duo S ARM variant with an SG2000 Cortex-A53, 512 MiB RAM, 100 Mbit Ethernet, SD/eMMC, Wi-Fi/Bluetooth and USB 2.0.
 
-## Image tailoring documentation
+## Documentation
 
-Two documents define how this image differs from stock Armbian and how further appliance tailoring should be implemented:
-
+- [`docs/BUILDING.md`](docs/BUILDING.md) — complete local/CI build guide, build-host preparation, dependency installation, image verification, flashing and troubleshooting.
 - [`docs/TAILORING_PLAN.md`](docs/TAILORING_PLAN.md) — phased implementation plan with acceptance criteria for memory, SD-card endurance, networking, first-boot behavior, watchdog/recovery, backup/migration, security, updates and physical outage testing.
 - [`docs/DEFAULT_IMAGE_DELTA.md`](docs/DEFAULT_IMAGE_DELTA.md) — authoritative record of currently implemented changes from the pinned default Armbian image, plus defaults intentionally left unchanged and planned-but-not-yet-implemented changes.
 
@@ -58,9 +57,9 @@ Changing either pin is an explicit image update.
 
 ## Local build
 
-A Linux build host is required. Armbian recommends a machine with substantial free disk space; building inside a VM or dedicated build container is preferable to building directly on the Duo S.
+For the complete host requirements and dependency-install instructions, see [`docs/BUILDING.md`](docs/BUILDING.md).
 
-Required host tools include Git, Go, Node.js/npm, `dpkg-deb`, and the packages required by the Armbian build framework. Run the build as a normal user with `sudo` access; the Armbian requirements stage requests privilege only when needed.
+After preparing the build host:
 
 ```bash
 bash ./build.sh
@@ -70,7 +69,7 @@ The resulting compressed SD-card image, SHA256 file and build manifest are copie
 
 ## GitHub Actions build
 
-`.github/workflows/build-image.yml` provides the same pinned build in CI. It can be started manually, and tags named `image-v*` publish the resulting `.img.xz`, checksum and build manifest as a GitHub release.
+`.github/workflows/build-image.yml` provides the same pinned build in CI. It can be started manually, and tags named `image-v*` publish the resulting `.img.xz`, checksum and build manifest as a GitHub release. See [`docs/BUILDING.md`](docs/BUILDING.md) for the step-by-step CI and release procedure.
 
 ## First boot
 
@@ -94,4 +93,4 @@ The image intentionally avoids board-specific logic in the safety agent. Milk-V-
 
 ## Status
 
-Initial image-build scaffolding plus a documented tailoring roadmap and baseline delta. A successful CI build does **not** replace physical acceptance testing with a real Duo S, real UPS, power interruption/recovery, and Synology DSM where applicable.
+Initial image-build scaffolding plus a documented tailoring roadmap, baseline delta and complete build guide. A successful CI build does **not** replace physical acceptance testing with a real Duo S, real UPS, power interruption/recovery, and Synology DSM where applicable.
