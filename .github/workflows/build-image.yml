@@ -1,0 +1,75 @@
+name: Build Milk-V Duo S image
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'image-v*'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: duo-s-image-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Load pinned toolchain versions
+        shell: bash
+        run: grep -E '^(GO_VERSION|NODE_VERSION)=' config/versions.env >>"$GITHUB_ENV"
+
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Reclaim runner disk space
+        shell: bash
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /opt/hostedtoolcache/CodeQL || true
+          sudo apt-get clean
+          df -h /
+
+      - name: Build pinned ARM64 appliance image
+        shell: bash
+        run: bash ./build.sh
+
+      - name: Verify output checksum
+        shell: bash
+        run: |
+          cd output
+          checksum="$(find . -maxdepth 1 -name '*.img.xz.sha256' -print -quit)"
+          test -n "$checksum"
+          sha256sum -c "${checksum#./}"
+          cat BUILD-MANIFEST.txt
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: milk-v-duo-s-nut-ups-image
+          path: |
+            output/*.img.xz
+            output/*.sha256
+            output/BUILD-MANIFEST.txt
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Publish tagged image release
+        if: startsWith(github.ref, 'refs/tags/image-v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            output/*.img.xz output/*.sha256 output/BUILD-MANIFEST.txt \
+            --title "$GITHUB_REF_NAME" \
+            --notes "Reproducible Milk-V Duo S ARM64 NUT UPS appliance image. Flash the image, complete Armbian first-login provisioning, attach the real UPS, then run: sudo cockpit-ups-wol-setup --tui"
