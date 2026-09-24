@@ -21,6 +21,15 @@ The image is based on a pinned Armbian build revision using:
 
 The Armbian board definition identifies the target as the Milk-V Duo S ARM variant with an SG2000 Cortex-A53, 512 MiB RAM, 100 Mbit Ethernet, SD/eMMC, Wi-Fi/Bluetooth and USB 2.0.
 
+## Image tailoring documentation
+
+Two documents define how this image differs from stock Armbian and how further appliance tailoring should be implemented:
+
+- [`docs/TAILORING_PLAN.md`](docs/TAILORING_PLAN.md) — phased implementation plan with acceptance criteria for memory, SD-card endurance, networking, first-boot behavior, watchdog/recovery, backup/migration, security, updates and physical outage testing.
+- [`docs/DEFAULT_IMAGE_DELTA.md`](docs/DEFAULT_IMAGE_DELTA.md) — authoritative record of currently implemented changes from the pinned default Armbian image, plus defaults intentionally left unchanged and planned-but-not-yet-implemented changes.
+
+Any future change that overrides an inherited Armbian default should update the delta document in the same change.
+
 ## Safety model
 
 The image **never arms automatic shutdown/recovery during image creation or first boot**.
@@ -85,4 +94,4 @@ The image intentionally avoids board-specific logic in the safety agent. Milk-V-
 
 ## Status
 
-Initial image-build scaffolding. A successful CI build does **not** replace physical acceptance testing with a real Duo S, real UPS, power interruption/recovery, and Synology DSM where applicable.
+Initial image-build scaffolding plus a documented tailoring roadmap and baseline delta. A successful CI build does **not** replace physical acceptance testing with a real Duo S, real UPS, power interruption/recovery, and Synology DSM where applicable.
