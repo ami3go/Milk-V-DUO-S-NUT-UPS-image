@@ -10,14 +10,14 @@ The image is based on a pinned Armbian build revision using:
 
 - board: `milkv-duos-arm`
 - architecture: ARM64 / Cortex-A53
-- Debian userspace
+- Debian 13 (Trixie) userspace
 - headless/minimal image
 - systemd
 - wired Ethernet preferred
 - Cockpit
 - Network UPS Tools (NUT)
 - `cockpit-ups-wol` ARM64 Debian package
-- conservative settings for a 512 MiB, SD-card-based appliance
+- bounded journal usage and normal Armbian ZRAM support for a 512 MiB appliance
 
 The Armbian board definition identifies the target as the Milk-V Duo S ARM variant with an SG2000 Cortex-A53, 512 MiB RAM, 100 Mbit Ethernet, SD/eMMC, Wi-Fi/Bluetooth and USB 2.0.
 
@@ -51,13 +51,17 @@ Changing either pin is an explicit image update.
 
 A Linux build host is required. Armbian recommends a machine with substantial free disk space; building inside a VM or dedicated build container is preferable to building directly on the Duo S.
 
-Required host tools include Git, Go, Node.js/npm, `dpkg-deb`, and the packages required by the Armbian build framework.
+Required host tools include Git, Go, Node.js/npm, `dpkg-deb`, and the packages required by the Armbian build framework. Run the build as a normal user with `sudo` access; the Armbian requirements stage requests privilege only when needed.
 
 ```bash
-sudo ./build.sh
+bash ./build.sh
 ```
 
-The resulting compressed SD-card image and checksum are copied to `output/`.
+The resulting compressed SD-card image, SHA256 file and build manifest are copied to `output/`.
+
+## GitHub Actions build
+
+`.github/workflows/build-image.yml` provides the same pinned build in CI. It can be started manually, and tags named `image-v*` publish the resulting `.img.xz`, checksum and build manifest as a GitHub release.
 
 ## First boot
 
