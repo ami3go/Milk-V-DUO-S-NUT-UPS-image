@@ -25,7 +25,7 @@ pkg=/tmp/overlay/packages/cockpit-ups-wol_arm64.deb
     exit 1
 }
 
-# Copy appliance-owned files before enabling services.  The overlay contains
+# Copy appliance-owned files before enabling services. The overlay contains
 # only generic OS tuning/documentation; UPS-specific configuration is created
 # later by cockpit-ups-wol-setup on the real controller.
 cp -a /tmp/overlay/rootfs/. /
@@ -42,9 +42,10 @@ apt-get install -y --no-install-recommends \
 systemctl enable cockpit.socket || true
 systemctl enable ssh.service || systemctl enable ssh.socket || true
 
-# Armbian normally supplies ZRAM.  If its service is present, ensure it is
+# Armbian normally supplies ZRAM. If its service is present, ensure it is
 # enabled rather than adding disk-backed swap to the SD card.
-if systemctl list-unit-files armbian-zram-config.service >/dev/null 2>&1; then
+if systemctl list-unit-files armbian-zram-config.service 2>/dev/null \
+    | grep -q '^armbian-zram-config.service'; then
     systemctl enable armbian-zram-config.service || true
 fi
 
@@ -52,7 +53,7 @@ fi
 systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target || true
 
 apt-get clean
-rm -rf /var/lib/apt/lists/* /tmp/overlay/packages/*.deb /tmp/overlay/packages/*.sha256
+rm -rf /var/lib/apt/lists/*
 
 # Marker used for diagnostics; it is not proof that physical hardware has
 # passed acceptance testing.
