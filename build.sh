@@ -9,7 +9,7 @@ WORK_DIR="${WORK_DIR:-$ROOT/.work}"
 OUT_DIR="${OUT_DIR:-$ROOT/output}"
 ARMBIAN_DIR="$WORK_DIR/armbian-build"
 
-for cmd in git sha256sum find cp; do
+for cmd in git sha256sum find cp bash; do
     command -v "$cmd" >/dev/null 2>&1 || {
         echo "missing required host tool: $cmd" >&2
         exit 1
@@ -21,7 +21,7 @@ mkdir -p "$WORK_DIR" "$OUT_DIR"
 # Build the application package from the pinned source commit first.  This
 # deliberately happens outside the target rootfs so Go/npm do not need to be
 # installed on the 512 MiB appliance image.
-WORK_DIR="$WORK_DIR" "$ROOT/scripts/build-cockpit-ups-wol-deb.sh"
+WORK_DIR="$WORK_DIR" bash "$ROOT/scripts/build-cockpit-ups-wol-deb.sh"
 
 if [[ ! -d "$ARMBIAN_DIR/.git" ]]; then
     git clone --filter=blob:none "$ARMBIAN_REPO" "$ARMBIAN_DIR"
